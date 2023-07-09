@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IClient {
 
-    List<Tournament> getTournaments();
+    List<Tournament> getTournaments(String club, int count);
 
     List<TournamentPlayerResult> getTopTenPlayers(Tournament tmt);
 }

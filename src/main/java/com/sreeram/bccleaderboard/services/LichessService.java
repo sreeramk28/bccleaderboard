@@ -5,7 +5,10 @@ import com.sreeram.bccleaderboard.models.Player;
 import com.sreeram.bccleaderboard.models.Tournament;
 import com.sreeram.bccleaderboard.models.TournamentPlayerResult;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,22 +18,33 @@ import java.util.List;
 @Service
 public class LichessService implements IService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(LichessService.class);
+
   @Autowired
   private IClient lichessClient;
 
+  @Value("${lichess.club.name}")
+  private String clubName;
+
+  @Value("${lichess.club.query-tournament-count}")
+  private int tournamentCount;
+
+
   @Override
   public LeaderboardResponse getLeaderboard() {
-    LeaderboardResponse response = new LeaderboardResponse();
     List<Tournament> tournaments = getCurrentMonthFinishedTournaments();
     HashMap<String, Player> topPlayers = getTopPlayersOfTheMonth(tournaments);
-    response.setTopPlayers(topPlayers);
-    return response;
+    return new LeaderboardResponse(topPlayers);
   }
 
   public HashMap<String, Player> getTopPlayersOfTheMonth(List<Tournament> tournaments) {
     HashMap<String, Player> results = new HashMap<>();
     for (Tournament tmt : tournaments) {
-      List<TournamentPlayerResult> top10 = getTopTenFromTournament(tmt);
+      List<TournamentPlayerResult> top10 = getClient().getTopTenPlayers(tmt);
+      if(top10 == null) {
+        LOGGER.warn("Top ten players list from tournament {} is null" , tmt);
+        continue;
+      }
       int listSize = top10.size();
       int score = 0;
       for (TournamentPlayerResult playerResult: top10) {
@@ -46,30 +60,28 @@ public class LichessService implements IService {
     return results;
   }
   
-  private List<TournamentPlayerResult> getTopTenFromTournament(Tournament tmt) {
-    List<TournamentPlayerResult> topTen = getClient().getTopTenPlayers(tmt);
-    return topTen;
-  }
-  
   private List<Tournament> getCurrentMonthFinishedTournaments() {
-    List<Tournament> tmtEntries = getClient().getTournaments();
+    List<Tournament> tmtEntries = getClient().getTournaments(clubName, tournamentCount);
 
     if(tmtEntries != null && !tmtEntries.isEmpty()) {
       int currentMonth = 
         tmtEntries.stream().findFirst().get().getStartsAt().getMonthValue();
-      
-      List<Tournament> currentMonthFinishedTmtIds =
+      LOGGER.info("Selecting finished tournaments that started in the current month {}", currentMonth);
+      List<Tournament> currentMonthFinishedTmtList =
         tmtEntries.stream().filter(t -> {
-          return 
+          return
             t.getStatus().equals("finished") &&
             t.getStartsAt().getMonthValue() == currentMonth;
         })
         .toList();
-      return currentMonthFinishedTmtIds;
+      LOGGER.debug("Filtered tournament list {}", currentMonthFinishedTmtList);
+      return currentMonthFinishedTmtList;
     }
     else {
-      System.out.println("Error fetching last five swiss tournaments: " + tmtEntries);
+      LOGGER.error("Error fetching last five swiss tournaments" +
+              " club : {}, count : {}, response : {}", clubName, tournamentCount, tmtEntries);
       return new ArrayList<>();
+      // Is it better to return null / or empty list here ?
     }
   }
 

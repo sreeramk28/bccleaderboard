@@ -1,16 +1,23 @@
 package com.sreeram.bccleaderboard.responses;
 
 import com.sreeram.bccleaderboard.models.Player;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Getter
 public class LeaderboardResponse {
   
   private List<PlayerResponse> topPlayers;
 
-  public void setTopPlayers(Map<String, Player> players) {
+  /**
+   * prepares Leaderboard response
+   * @param players map containing the player username and the aggregate clubscore over
+   *                all tournaments started and finished current month
+   */
+  public LeaderboardResponse(Map<String, Player> players) {
     if(players == null) {
       System.out.println("Players is null");
       return;
@@ -22,8 +29,5 @@ public class LeaderboardResponse {
     }
     topPlayers.sort(((o1, o2) -> o2.getMonthScore() - o1.getMonthScore()));
   }
-  
-  public List<PlayerResponse> getTopPlayers() {
-    return topPlayers;
-  }
+
 }
