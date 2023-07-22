@@ -27,8 +27,8 @@ public class LichessClient implements IClient {
         Many<Swiss> lastFiveSwissTournaments =
                 client.teams().swissByTeamId(club, count);
         if (lastFiveSwissTournaments instanceof Entries<Swiss> entries) {
-            LOGGER.info("{} Request success : Club {}, Count {}, response {}", LICHESS, club, count, lastFiveSwissTournaments);
             List<Swiss> tmtEntries = entries.stream().toList();
+            LOGGER.info("{} Request success : Club {}, Count {}, response {}", LICHESS, club, count, tmtEntries);
             if (tmtEntries.isEmpty()) {
                 LOGGER.warn("Empty tournament list");
                 return new ArrayList<>();
@@ -45,8 +45,9 @@ public class LichessClient implements IClient {
         Many<SwissResult> topTen =
                 client.tournaments().resultsBySwissId(tmt.getId(), params -> params.max(10));
         if (topTen instanceof Entries<SwissResult>) {
-            LOGGER.info("{} Request success : Tournament {}, response {}", LICHESS, tmt, topTen);
-            return topTen.stream().map(result -> convert(result, tmt)).toList();
+            List<TournamentPlayerResult> topTenList = topTen.stream().map(result -> convert(result, tmt)).toList();
+            LOGGER.info("{} Request success : Tournament {}, response {}", LICHESS, tmt, topTenList);
+            return topTenList;
         }
         else {
             LOGGER.error("{} Request failed : top 10 players - Tournament {}, failure message {}", LICHESS, tmt.getId(), topTen);
