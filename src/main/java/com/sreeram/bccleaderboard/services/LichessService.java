@@ -46,9 +46,8 @@ public class LichessService implements IService {
   private void computeAndUpdatePlayerLevelMetrics(Map<String, List<PlayerTournamentOutcome>> metrics, List<TournamentPlayerResult> topTenResults) {
     TournamentPlayerResult previousPlayerResult = null;
     int previousClubScore = 10, rank = 1;
-    int listSize = topTenResults.size(); 
     for (TournamentPlayerResult r: topTenResults) {
-      int clubScore = listSize - rank + 1;
+      int clubScore = 10 - rank + 1;
       if (previousPlayerResult != null) {
         if (previousPlayerResult.getPoints().equals(r.getPoints()) &&
             previousPlayerResult.getTiebreak().equals(r.getTiebreak())) {
