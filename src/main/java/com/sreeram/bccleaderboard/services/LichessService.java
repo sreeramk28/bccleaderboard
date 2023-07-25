@@ -2,6 +2,7 @@ package com.sreeram.bccleaderboard.services;
 
 import com.sreeram.bccleaderboard.client.IClient;
 import com.sreeram.bccleaderboard.models.Player;
+import com.sreeram.bccleaderboard.models.PlayerTournamentOutcome;
 import com.sreeram.bccleaderboard.models.Tournament;
 import com.sreeram.bccleaderboard.models.TournamentPlayerResult;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 @Service
@@ -32,34 +34,54 @@ public class LichessService implements IService {
 
   @Override
   public LeaderboardResponse getLeaderboard() {
+    Map<String, List<PlayerTournamentOutcome>> metrics = new HashMap<>();
     List<Tournament> tournaments = getCurrentMonthFinishedTournaments();
-    HashMap<String, Player> topPlayers = getTopPlayersOfTheMonth(tournaments);
-    return new LeaderboardResponse(topPlayers);
+    tournaments.forEach(t -> {
+      computeAndUpdatePlayerLevelMetrics(metrics, getTournamentTopTenResults(t));
+    });
+    List<Player> players = mapMetricsToPlayerData(metrics);
+    return new LeaderboardResponse(players);
   }
 
-  public HashMap<String, Player> getTopPlayersOfTheMonth(List<Tournament> tournaments) {
-    HashMap<String, Player> results = new HashMap<>();
-    for (Tournament tmt : tournaments) {
-      List<TournamentPlayerResult> top10 = getClient().getTopTenPlayers(tmt);
-      if(top10 == null) {
-        LOGGER.warn("Top ten players list from tournament {} is null" , tmt);
-        continue;
+  private void computeAndUpdatePlayerLevelMetrics(Map<String, List<PlayerTournamentOutcome>> metrics, List<TournamentPlayerResult> topTenResults) {
+    TournamentPlayerResult previousPlayerResult = null;
+    int previousClubScore = 10, rank = 1;
+    for (TournamentPlayerResult r: topTenResults) {
+      int clubScore = 10 - rank + 1;
+      if (previousPlayerResult != null) {
+        if (previousPlayerResult.getPoints().equals(r.getPoints()) &&
+            previousPlayerResult.getTiebreak().equals(r.getTiebreak())) {
+              clubScore = previousClubScore;
+            } 
       }
-      int listSize = top10.size();
-      int score = 0;
-      for (TournamentPlayerResult playerResult: top10) {
-        String username = playerResult.getUsername();
-        Player player = results.getOrDefault(username, new Player(username));
-        int clubScore = listSize - score;
-        // TODO - Update club score according to the points and tiebreak scored in the tournamentPlayerResult
-        player.addTournamentResults(playerResult, clubScore);
-        results.put(username, player);
-        score++;
-      }
+      updatePlayerWiseMetrics(metrics, r, clubScore);
+      previousPlayerResult = r;
+      previousClubScore = clubScore;
+      rank++;
     }
-    return results;
+  }
+
+  private List<Player> mapMetricsToPlayerData(Map<String, List<PlayerTournamentOutcome>> metrics) {
+    List<Player> players = new ArrayList<>();
+    metrics.forEach((username, outcomes) -> {
+      Player player = new Player(username);
+      player.setOutcomes(outcomes);
+      player.computeMonthAggregates();
+      players.add(player);
+    });
+    return players;
+  }
+
+  private void updatePlayerWiseMetrics(Map<String, List<PlayerTournamentOutcome>> metrics,
+                               TournamentPlayerResult result, Integer clubScore) {
+    PlayerTournamentOutcome outcome = new PlayerTournamentOutcome(result.getTmtId(), result.getPoints(), result.getTiebreak(), clubScore);
+    metrics.computeIfAbsent(result.getUsername(), u -> new ArrayList<>()).add(outcome);
   }
   
+  private List<TournamentPlayerResult> getTournamentTopTenResults(Tournament t) {
+    return getClient().getTopTenPlayers(t);
+  }
+
   private List<Tournament> getCurrentMonthFinishedTournaments() {
     List<Tournament> tmtEntries = getClient().getTournaments(clubName, tournamentCount);
 
