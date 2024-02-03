@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 public class LeaderboardController {
@@ -16,15 +18,34 @@ public class LeaderboardController {
   private static final Logger LOGGER = LoggerFactory.getLogger(LeaderboardController.class);
 
   @Autowired
+  private IService chesscomService;
+
+  @Autowired
   private IService lichessService;
   
   @CrossOrigin
   @GetMapping("/bestPlayers")
-  public ResponseEntity<LeaderboardResponse> getBestPlayers() {
+  public ResponseEntity<LeaderboardResponse> getBestPlayers(
+    @RequestParam String platform,
+    @RequestParam(required = false) List<String> urls) {
     LOGGER.info("Request received");
 
     long start = System.currentTimeMillis();
-    LeaderboardResponse response = lichessService.getLeaderboard();
+    LeaderboardResponse response;
+    
+    if (platform.equals("lichess")) {
+      System.out.println("Lichess" + platform);
+      response = lichessService.getLeaderboard();
+      
+    }
+    else {
+      System.out.println("Chesscom" + platform);
+      if (urls != null)
+        System.out.println("URLS::" + urls.toString());
+      response = chesscomService.getLeaderboardFromTournamentURLs(urls);
+    }
+      
+    
     long end = System.currentTimeMillis();
     long duration = end - start;
     LOGGER.info("Response fetched in: {} ms", duration);

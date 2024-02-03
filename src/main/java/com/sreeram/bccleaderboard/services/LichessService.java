@@ -43,6 +43,12 @@ public class LichessService implements IService {
     return new LeaderboardResponse(players);
   }
 
+  @Override
+  public LeaderboardResponse getLeaderboardFromTournamentURLs(List<String> urls) {
+    return null;
+  }
+
+
   private void computeAndUpdatePlayerLevelMetrics(Map<String, List<PlayerTournamentOutcome>> metrics, List<TournamentPlayerResult> topTenResults) {
     TournamentPlayerResult previousPlayerResult = null;
     int previousClubScore = 10, rank = 1;
