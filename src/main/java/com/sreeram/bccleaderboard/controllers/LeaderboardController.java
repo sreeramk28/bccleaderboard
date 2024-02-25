@@ -27,22 +27,22 @@ public class LeaderboardController {
   @GetMapping("/bestPlayers")
   public ResponseEntity<LeaderboardResponse> getBestPlayers(
     @RequestParam String platform,
-    @RequestParam(required = false) List<String> urls) {
+    @RequestParam List<String> urls) {
     LOGGER.info("Request received");
 
     long start = System.currentTimeMillis();
     LeaderboardResponse response;
     
+    if (urls != null) {
+      LOGGER.info("URLs: {}", urls);
+    }
+
     if (platform.equals("lichess")) {
-      response = lichessService.getLeaderboard();
+      response = lichessService.getLeaderboardFromTournamentURLs(urls);
     }
     else {
-      if (urls != null) {
-        LOGGER.info("URLs: {}", urls);
-      }
       response = chesscomService.getLeaderboardFromTournamentURLs(urls);
     }
-      
     
     long end = System.currentTimeMillis();
     long duration = end - start;
