@@ -12,7 +12,7 @@
 	<artifactId>bccleaderboard</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>bccleaderboard</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Leaderboards for the Bangalore Chess Club Online Tournaments</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -28,7 +28,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -36,11 +35,12 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- Lichess and ChessCom API clients -->
 		<dependency>
-      <groupId>io.github.tors42</groupId>
-      <artifactId>chariot</artifactId>
-      <version>0.0.67</version>
-    </dependency>
+      		<groupId>io.github.tors42</groupId>
+      		<artifactId>chariot</artifactId>
+      		<version>0.0.67</version>
+    	</dependency>
 		
 		<dependency>
 			<groupId>io.github.sornerol</groupId>
