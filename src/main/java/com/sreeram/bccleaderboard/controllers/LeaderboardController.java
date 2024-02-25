@@ -34,14 +34,12 @@ public class LeaderboardController {
     LeaderboardResponse response;
     
     if (platform.equals("lichess")) {
-      System.out.println("Lichess" + platform);
       response = lichessService.getLeaderboard();
-      
     }
     else {
-      System.out.println("Chesscom" + platform);
-      if (urls != null)
-        System.out.println("URLS::" + urls.toString());
+      if (urls != null) {
+        LOGGER.info("URLs: {}", urls);
+      }
       response = chesscomService.getLeaderboardFromTournamentURLs(urls);
     }
       

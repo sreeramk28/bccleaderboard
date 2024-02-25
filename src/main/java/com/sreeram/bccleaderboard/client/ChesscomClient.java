@@ -35,20 +35,14 @@ public class ChesscomClient implements IClient {
     public List<Tournament> getTournaments(List<String> urls) {
         List<String> urlIds = urls.stream().map(url -> {
             int indexOfOblique = url.lastIndexOf("/");
-            System.out.println("Indx: "+ indexOfOblique);
             String urlId = url.substring(indexOfOblique + 1);
             return urlId;
         }).toList();
         
-        System.out.println("IDs = " + urlIds.toString());
         List<Tournament> tournaments = new ArrayList<>(); 
         for (String id: urlIds) {
             try {
                 io.github.sornerol.chess.pubapi.domain.tournament.Tournament chessComTournament = client.getTournamentByUrlId(id);
-                
-                System.out.println("IDD = " + chessComTournament.getUrl());
-                System.out.println("Roundss = " + chessComTournament.getSettings().getTotalRounds());
-                //return tournaments;
                 Tournament t = convert(chessComTournament, id);
                 tournaments.add(t);
             }
@@ -68,7 +62,7 @@ public class ChesscomClient implements IClient {
     public List<TournamentPlayerResult> getTopTenPlayers(Tournament tmt) {
         try {
             TournamentRoundGroup results = client.getTournamentRoundGroup(tmt.getId(), tmt.getNbRounds(), 1);
-            LOGGER.info("Resultss {}", results);
+            // LOGGER.info("Tournament {} results from chess com - {}", tmt.getId(), results);
             List<TournamentPlayerResult> allPlayerResults =
                 results.getPlayers().stream().map(
                     playerResult -> convert(playerResult, tmt)
