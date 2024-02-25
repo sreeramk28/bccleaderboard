@@ -55,6 +55,12 @@ public class LichessClient implements IClient {
         }
     }
 
+    @Override
+    public List<Tournament> getTournaments(List<String> urls) {
+        return null;
+    }
+
+
     private Tournament convert(Swiss lichessTmt) {
         LOGGER.debug("Converting Swiss -> Tournament, tmtId {}", lichessTmt.id());
         Tournament tournament = new Tournament(lichessTmt.id());

@@ -6,6 +6,8 @@ import com.sreeram.bccleaderboard.models.PlayerTournamentOutcome;
 import com.sreeram.bccleaderboard.models.Tournament;
 import com.sreeram.bccleaderboard.models.TournamentPlayerResult;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
+import com.sreeram.bccleaderboard.utils.CommonUtility;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class LichessService implements IService {
   @Autowired
   private IClient lichessClient;
 
+  @Autowired
+  private CommonUtility utility;
+
   @Value("${lichess.club.name}")
   private String clubName;
 
@@ -37,45 +42,15 @@ public class LichessService implements IService {
     Map<String, List<PlayerTournamentOutcome>> metrics = new HashMap<>();
     List<Tournament> tournaments = getCurrentMonthFinishedTournaments();
     tournaments.forEach(t -> {
-      computeAndUpdatePlayerLevelMetrics(metrics, getTournamentTopTenResults(t));
+      utility.computeAndUpdatePlayerLevelMetrics(metrics, getTournamentTopTenResults(t));
     });
-    List<Player> players = mapMetricsToPlayerData(metrics);
+    List<Player> players = utility.mapMetricsToPlayerData(metrics);
     return new LeaderboardResponse(players);
   }
 
-  private void computeAndUpdatePlayerLevelMetrics(Map<String, List<PlayerTournamentOutcome>> metrics, List<TournamentPlayerResult> topTenResults) {
-    TournamentPlayerResult previousPlayerResult = null;
-    int previousClubScore = 10, rank = 1;
-    for (TournamentPlayerResult r: topTenResults) {
-      int clubScore = 10 - rank + 1;
-      if (previousPlayerResult != null) {
-        if (previousPlayerResult.getPoints().equals(r.getPoints()) &&
-            previousPlayerResult.getTiebreak().equals(r.getTiebreak())) {
-              clubScore = previousClubScore;
-            } 
-      }
-      updatePlayerWiseMetrics(metrics, r, clubScore);
-      previousPlayerResult = r;
-      previousClubScore = clubScore;
-      rank++;
-    }
-  }
-
-  private List<Player> mapMetricsToPlayerData(Map<String, List<PlayerTournamentOutcome>> metrics) {
-    List<Player> players = new ArrayList<>();
-    metrics.forEach((username, outcomes) -> {
-      Player player = new Player(username);
-      player.setOutcomes(outcomes);
-      player.computeMonthAggregates();
-      players.add(player);
-    });
-    return players;
-  }
-
-  private void updatePlayerWiseMetrics(Map<String, List<PlayerTournamentOutcome>> metrics,
-                               TournamentPlayerResult result, Integer clubScore) {
-    PlayerTournamentOutcome outcome = new PlayerTournamentOutcome(result.getTmtId(), result.getPoints(), result.getTiebreak(), clubScore);
-    metrics.computeIfAbsent(result.getUsername(), u -> new ArrayList<>()).add(outcome);
+  @Override
+  public LeaderboardResponse getLeaderboardFromTournamentURLs(List<String> urls) {
+    return null;
   }
   
   private List<TournamentPlayerResult> getTournamentTopTenResults(Tournament t) {

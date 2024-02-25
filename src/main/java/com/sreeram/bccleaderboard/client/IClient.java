@@ -10,4 +10,6 @@ public interface IClient {
     List<Tournament> getTournaments(String club, int count);
 
     List<TournamentPlayerResult> getTopTenPlayers(Tournament tmt);
+
+    List<Tournament> getTournaments(List<String> urls);
 }
