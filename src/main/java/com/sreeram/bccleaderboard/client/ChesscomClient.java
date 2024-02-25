@@ -17,19 +17,14 @@ import io.github.sornerol.chess.pubapi.domain.tournament.TournamentPlayer;
 import io.github.sornerol.chess.pubapi.domain.tournament.TournamentRoundGroup;
 import io.github.sornerol.chess.pubapi.exception.ChessComPubApiException;
 
-// TODO - ChesscomClient
 @Component
 public class ChesscomClient implements IClient {
     
-    private static final Logger LOGGER = LoggerFactory.getLogger(LichessClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChesscomClient.class);
+    private static final String CHESSCOM = "Chesscom";
 
     @Autowired
     private TournamentClient client;
-
-    @Override
-    public List<Tournament> getTournaments(String club, int count) {
-        return null;
-    }
 
     @Override
     public List<Tournament> getTournaments(List<String> urls) {
@@ -47,10 +42,12 @@ public class ChesscomClient implements IClient {
                 tournaments.add(t);
             }
             catch(IOException e) {
+                LOGGER.error("IOException: Failed to fetch {} tournament ID {}", CHESSCOM, id);
                 e.printStackTrace();
                 return null;
             }
             catch (ChessComPubApiException e) {
+                LOGGER.error("ChessComPubApiException: Failed to fetch {} tournament ID {}", CHESSCOM, id);
                 e.printStackTrace();
                 return null;
             }
@@ -62,7 +59,6 @@ public class ChesscomClient implements IClient {
     public List<TournamentPlayerResult> getTopTenPlayers(Tournament tmt) {
         try {
             TournamentRoundGroup results = client.getTournamentRoundGroup(tmt.getId(), tmt.getNbRounds(), 1);
-            // LOGGER.info("Tournament {} results from chess com - {}", tmt.getId(), results);
             List<TournamentPlayerResult> allPlayerResults =
                 results.getPlayers().stream().map(
                     playerResult -> convert(playerResult, tmt)
@@ -74,7 +70,7 @@ public class ChesscomClient implements IClient {
                 }
                 return Float.compare(p2.getPoints(), p1.getPoints());
             });
-            return mutableAllPlayerResults.subList(0, 20);
+            return mutableAllPlayerResults.subList(0, Integer.min(20, mutableAllPlayerResults.size()));
         }
         catch(IOException e) {
             e.printStackTrace();
@@ -85,20 +81,19 @@ public class ChesscomClient implements IClient {
         return null;
     }
 
-    private TournamentPlayerResult convert(TournamentPlayer playerResult, Tournament tmt) {
-        TournamentPlayerResult result = new TournamentPlayerResult(playerResult.getUsername(), tmt.getId());
-        LOGGER.debug("Converting Chesscom  player result -> TournamentPlayerResult, tmtId {}, player {}", tmt.getId(), playerResult.getUsername());
-        result.setPoints(playerResult.getPoints().floatValue());
-        
-        // Tie break playerResult.getTiebreak().floatValue() is coming as null. Compute it using buccholz cut 1
-        result.setTiebreak(0F);
-        return result;
-    }
-
     private Tournament convert(io.github.sornerol.chess.pubapi.domain.tournament.Tournament chessComTournament, String id) {
-        LOGGER.debug("Converting Chesscom tournament type -> Tournament, tmtId {}", id);
+        LOGGER.debug("Converting {} tournament type -> Tournament, tmtId {}", CHESSCOM, id);
         Tournament tournament = new Tournament(id);
         tournament.setNbRounds(chessComTournament.getSettings().getTotalRounds());
         return tournament;
+    }
+
+    private TournamentPlayerResult convert(TournamentPlayer playerResult, Tournament tmt) {
+        TournamentPlayerResult result = new TournamentPlayerResult(playerResult.getUsername(), tmt.getId());
+        LOGGER.debug("Converting {} player result -> TournamentPlayerResult, tmtId {}, player {}", CHESSCOM, tmt.getId(), playerResult.getUsername());
+        result.setPoints(playerResult.getPoints().floatValue());
+        // Tie break playerResult.getTiebreak().floatValue() is coming as null. Compute it using buccholz cut 1
+        result.setTiebreak(0F);
+        return result;
     }
 }

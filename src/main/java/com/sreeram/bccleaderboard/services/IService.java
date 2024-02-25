@@ -13,10 +13,8 @@ public interface IService {
     IClient getClient();
 
     /**
-     * @return leaderboard response of the last 5 tournaments in BCC
+     * @return leaderboard response from the tournament (urls) considered
      */
-    LeaderboardResponse getLeaderboard();
-
     LeaderboardResponse getLeaderboardFromTournamentURLs(List<String> urls);
 
 }

@@ -29,11 +29,6 @@ public class ChesscomService implements IService {
     }
 
     @Override
-    public LeaderboardResponse getLeaderboard() {
-        return null;
-    }
-
-    @Override
     public LeaderboardResponse getLeaderboardFromTournamentURLs(List<String> urls) {
         Map<String, List<PlayerTournamentOutcome>> metrics = new HashMap<>();
         List<Tournament> tournaments = getClient().getTournaments(urls);
