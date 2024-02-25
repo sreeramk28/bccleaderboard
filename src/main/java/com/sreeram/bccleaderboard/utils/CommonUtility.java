@@ -19,10 +19,12 @@ public class CommonUtility {
     for (TournamentPlayerResult r: topTenResults) {
       int clubScore = 10 - rank + 1;
       if (previousPlayerResult != null) {
-        if (previousPlayerResult.getPoints().equals(r.getPoints()) &&
-            previousPlayerResult.getTiebreak().equals(r.getTiebreak())) {
+        if (previousPlayerResult.getPoints().equals(r.getPoints())) {
               clubScore = previousClubScore;
             } 
+      }
+      if (clubScore <= 0) {
+        break;
       }
       updatePlayerWiseMetrics(metrics, r, clubScore);
       previousPlayerResult = r;

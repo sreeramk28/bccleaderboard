@@ -11,7 +11,6 @@ import com.sreeram.bccleaderboard.client.IClient;
 import com.sreeram.bccleaderboard.models.Player;
 import com.sreeram.bccleaderboard.models.PlayerTournamentOutcome;
 import com.sreeram.bccleaderboard.models.Tournament;
-import com.sreeram.bccleaderboard.models.TournamentPlayerResult;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 import com.sreeram.bccleaderboard.utils.CommonUtility;
 

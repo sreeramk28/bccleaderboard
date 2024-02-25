@@ -80,7 +80,7 @@ public class ChesscomClient implements IClient {
                 }
                 return Float.compare(p2.getPoints(), p1.getPoints());
             });
-            return mutableAllPlayerResults.subList(0, 10);
+            return mutableAllPlayerResults.subList(0, 20);
         }
         catch(IOException e) {
             e.printStackTrace();
