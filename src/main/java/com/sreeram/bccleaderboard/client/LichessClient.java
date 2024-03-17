@@ -1,6 +1,7 @@
 package com.sreeram.bccleaderboard.client;
 
 import chariot.Client;
+import chariot.model.ArenaResult;
 import chariot.model.Entries;
 import chariot.model.Many;
 import chariot.model.One;
@@ -57,6 +58,30 @@ public class LichessClient implements IClient {
             LOGGER.error("{} Request failed : top 10 players - Tournament {}, failure message {}", LICHESS, tmt.getId(),
                     topTen);
             return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<String> getPlayersByTournamentId(String id, String type) {
+        if (type.equals("arena")) {
+            Many<ArenaResult> standings = client.tournaments().resultsByArenaId(id, params -> params.max(500));
+            if (standings instanceof Entries<ArenaResult>) {
+                return standings.stream().map(player -> player.username()).toList();
+            }
+            else {
+                LOGGER.error("{} Failed to get tournament standings - Tournament {}, failure message {}", LICHESS, id, standings);
+                return null;
+            }
+        }
+        else {
+            Many<SwissResult> standings = client.tournaments().resultsBySwissId(id, params -> params.max(500));
+            if (standings instanceof Entries<SwissResult>) {
+                return standings.stream().map(player -> player.username()).toList();
+            }
+            else {
+                LOGGER.error("{} Failed to get tournament standings - Tournament {}, failure message {}", LICHESS, id, standings);
+                return null;
+            }
         }
     }
 

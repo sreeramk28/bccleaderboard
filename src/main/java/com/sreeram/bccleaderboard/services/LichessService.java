@@ -2,8 +2,10 @@ package com.sreeram.bccleaderboard.services;
 
 import com.sreeram.bccleaderboard.client.IClient;
 import com.sreeram.bccleaderboard.models.Player;
+import com.sreeram.bccleaderboard.models.PlayerActivity;
 import com.sreeram.bccleaderboard.models.PlayerTournamentOutcome;
 import com.sreeram.bccleaderboard.models.Tournament;
+import com.sreeram.bccleaderboard.responses.ActivityResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 import com.sreeram.bccleaderboard.utils.CommonUtility;
 
@@ -37,5 +39,17 @@ public class LichessService implements IService {
     List<Player> players = utility.mapMetricsToPlayerData(metrics);
     return new LeaderboardResponse(players);
   }  
+
+  @Override
+  public ActivityResponse getActivePlayersFromTournamentURLs(List<String> urls) {
+    Map<String, Integer> activity = new HashMap<>();
+    urls.forEach(url -> {
+        List<String> tDetail = utility.getIdAndTypeFromTournamentUrl(url, "lichess");
+        List<String> players = getClient().getPlayersByTournamentId(tDetail.get(0), tDetail.get(1));
+        utility.updatePlayerActivity(activity, players);
+    });
+    List<PlayerActivity> activePlayers = utility.mapActivityToPlayerActivity(activity);
+    return new ActivityResponse(activePlayers);
+  }
 
 }

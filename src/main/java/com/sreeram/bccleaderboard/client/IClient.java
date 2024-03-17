@@ -9,4 +9,6 @@ public interface IClient {
     List<Tournament> getTournaments(List<String> urls);
     
     List<TournamentPlayerResult> getTopTenPlayers(Tournament tmt);
+
+    List<String> getPlayersByTournamentId(String id, String type);
 }

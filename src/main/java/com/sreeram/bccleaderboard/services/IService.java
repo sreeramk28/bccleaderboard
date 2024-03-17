@@ -3,6 +3,7 @@ package com.sreeram.bccleaderboard.services;
 import java.util.List;
 
 import com.sreeram.bccleaderboard.client.IClient;
+import com.sreeram.bccleaderboard.responses.ActivityResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 
 public interface IService {
@@ -16,5 +17,7 @@ public interface IService {
      * @return leaderboard response from the tournament (urls) considered
      */
     LeaderboardResponse getLeaderboardFromTournamentURLs(List<String> urls);
+
+    ActivityResponse getActivePlayersFromTournamentURLs(List<String> urls);
 
 }
