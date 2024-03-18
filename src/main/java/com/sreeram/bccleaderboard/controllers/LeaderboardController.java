@@ -1,5 +1,6 @@
 package com.sreeram.bccleaderboard.controllers;
 
+import com.sreeram.bccleaderboard.responses.ActivityResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 import com.sreeram.bccleaderboard.services.IService;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class LeaderboardController {
   public ResponseEntity<LeaderboardResponse> getBestPlayers(
     @RequestParam String platform,
     @RequestParam List<String> urls) {
-    LOGGER.info("Request received");
+    LOGGER.info("Best players request received");
 
     long start = System.currentTimeMillis();
     LeaderboardResponse response;
@@ -42,6 +43,39 @@ public class LeaderboardController {
     }
     else {
       response = chesscomService.getLeaderboardFromTournamentURLs(urls);
+    }
+    
+    long end = System.currentTimeMillis();
+    long duration = end - start;
+    LOGGER.info("Response fetched in: {} ms", duration);
+    
+    if (response == null) {
+      return ResponseEntity.internalServerError().build();
+    }
+    else {
+      return ResponseEntity.ok(response);
+    }
+  }
+
+  @CrossOrigin
+  @GetMapping("/activePlayers")
+  public ResponseEntity<ActivityResponse> getActivePlayers(
+    @RequestParam String platform,
+    @RequestParam List<String> urls) {
+    LOGGER.info("Active players request received");
+
+    long start = System.currentTimeMillis();
+    ActivityResponse response;
+    
+    if (urls != null) {
+      LOGGER.info("URLs: {}", urls);
+    }
+
+    if (platform.equals("lichess")) {
+      response = lichessService.getActivePlayersFromTournamentURLs(urls);
+    }
+    else {
+      response = chesscomService.getActivePlayersFromTournamentURLs(urls);
     }
     
     long end = System.currentTimeMillis();

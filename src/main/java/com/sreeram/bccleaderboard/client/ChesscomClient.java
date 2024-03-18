@@ -81,6 +81,24 @@ public class ChesscomClient implements IClient {
         return null;
     }
 
+    @Override
+    public List<String> getPlayersByTournamentId(String id, String type) {
+        try {
+            io.github.sornerol.chess.pubapi.domain.tournament.Tournament chessComTournament = client.getTournamentByUrlId(id);
+            return chessComTournament.getPlayers().stream().map(player -> player.getUsername()).toList();
+        }
+        catch(IOException e) {
+            LOGGER.error("IOException: Failed to fetch {} tournament ID {}", CHESSCOM, id);
+            e.printStackTrace();
+            return null;
+        }
+        catch (ChessComPubApiException e) {
+            LOGGER.error("ChessComPubApiException: Failed to fetch {} tournament ID {}", CHESSCOM, id);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private Tournament convert(io.github.sornerol.chess.pubapi.domain.tournament.Tournament chessComTournament, String id) {
         LOGGER.debug("Converting {} tournament type -> Tournament, tmtId {}", CHESSCOM, id);
         Tournament tournament = new Tournament(id);
