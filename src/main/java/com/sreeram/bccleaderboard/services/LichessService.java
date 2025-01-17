@@ -6,6 +6,7 @@ import com.sreeram.bccleaderboard.models.PlayerActivity;
 import com.sreeram.bccleaderboard.models.PlayerTournamentOutcome;
 import com.sreeram.bccleaderboard.models.Tournament;
 import com.sreeram.bccleaderboard.responses.ActivityResponse;
+import com.sreeram.bccleaderboard.responses.ArenaLeaderboardResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 import com.sreeram.bccleaderboard.utils.CommonUtility;
 
@@ -50,6 +51,17 @@ public class LichessService implements IService {
     });
     List<PlayerActivity> activePlayers = utility.mapActivityToPlayerActivity(activity);
     return new ActivityResponse(activePlayers);
+  }
+
+  @Override
+  public ArenaLeaderboardResponse getArenaLeaderboardFromTournamentURLS(List<String> urls) {
+    List<Tournament> tournaments = getClient().getArenaTournaments(urls);
+    Map<String, List<PlayerTournamentOutcome>> metrics = new HashMap<>();
+    tournaments.forEach(t -> {
+      utility.computeAndUpdatePlayerLevelMetrics(metrics, getClient().getTopTenArenaPlayers(t));
+    });
+    List<Player> players = utility.mapMetricsToPlayerData(metrics);
+    return new ArenaLeaderboardResponse(players);
   }
 
 }

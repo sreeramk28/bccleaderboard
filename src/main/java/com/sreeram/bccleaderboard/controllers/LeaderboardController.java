@@ -1,6 +1,7 @@
 package com.sreeram.bccleaderboard.controllers;
 
 import com.sreeram.bccleaderboard.responses.ActivityResponse;
+import com.sreeram.bccleaderboard.responses.ArenaLeaderboardResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 import com.sreeram.bccleaderboard.services.IService;
 import org.slf4j.Logger;
@@ -76,6 +77,39 @@ public class LeaderboardController {
     }
     else {
       response = chesscomService.getActivePlayersFromTournamentURLs(urls);
+    }
+    
+    long end = System.currentTimeMillis();
+    long duration = end - start;
+    LOGGER.info("Response fetched in: {} ms", duration);
+    
+    if (response == null) {
+      return ResponseEntity.internalServerError().build();
+    }
+    else {
+      return ResponseEntity.ok(response);
+    }
+  }
+
+  @CrossOrigin
+  @GetMapping("/arenaBestPlayers")
+  public ResponseEntity<ArenaLeaderboardResponse> getArenaBestPlayers(
+    @RequestParam String platform,
+    @RequestParam List<String> urls) {
+    LOGGER.info("Arena Best players request received");
+
+    long start = System.currentTimeMillis();
+    ArenaLeaderboardResponse response;
+    
+    if (urls != null) {
+      LOGGER.info("URLs: {}", urls);
+    }
+
+    if (platform.equals("lichess")) {
+      response = lichessService.getArenaLeaderboardFromTournamentURLS(urls);
+    }
+    else {
+      response = chesscomService.getArenaLeaderboardFromTournamentURLS(urls);
     }
     
     long end = System.currentTimeMillis();

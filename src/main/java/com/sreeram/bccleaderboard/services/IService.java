@@ -5,6 +5,7 @@ import java.util.List;
 import com.sreeram.bccleaderboard.client.IClient;
 import com.sreeram.bccleaderboard.responses.ActivityResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
+import com.sreeram.bccleaderboard.responses.ArenaLeaderboardResponse;
 
 public interface IService {
 
@@ -20,4 +21,5 @@ public interface IService {
 
     ActivityResponse getActivePlayersFromTournamentURLs(List<String> urls);
 
+    ArenaLeaderboardResponse getArenaLeaderboardFromTournamentURLS(List<String> urls);
 }

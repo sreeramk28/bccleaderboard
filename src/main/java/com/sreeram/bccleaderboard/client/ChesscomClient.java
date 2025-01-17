@@ -114,4 +114,14 @@ public class ChesscomClient implements IClient {
         result.setTiebreak(0F);
         return result;
     }
+
+    @Override
+    public List<TournamentPlayerResult> getTopTenArenaPlayers(Tournament tmt) {
+        throw new UnsupportedOperationException("Unimplemented method 'getTopTenArenaPlayers'");
+    }
+
+    @Override
+    public List<Tournament> getArenaTournaments(List<String> urls) {
+        throw new UnsupportedOperationException("Unimplemented method 'getArenaTournaments'");
+    }
 }
