@@ -13,6 +13,7 @@ import com.sreeram.bccleaderboard.models.PlayerActivity;
 import com.sreeram.bccleaderboard.models.PlayerTournamentOutcome;
 import com.sreeram.bccleaderboard.models.Tournament;
 import com.sreeram.bccleaderboard.responses.ActivityResponse;
+import com.sreeram.bccleaderboard.responses.ArenaLeaderboardResponse;
 import com.sreeram.bccleaderboard.responses.LeaderboardResponse;
 import com.sreeram.bccleaderboard.utils.CommonUtility;
 
@@ -51,6 +52,11 @@ public class ChesscomService implements IService {
         });
         List<PlayerActivity> activePlayers = utility.mapActivityToPlayerActivity(activity);
         return new ActivityResponse(activePlayers);
+    }
+
+    @Override
+    public ArenaLeaderboardResponse getArenaLeaderboardFromTournamentURLS(List<String> urls) {
+        throw new UnsupportedOperationException("Unimplemented method 'getArenaLeaderboardFromTournamentURLS'");
     }
 
 }
